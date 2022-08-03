@@ -20,9 +20,34 @@ app.get("/", function (req, res) {
 
 
 // your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+app.get("/api/:id", (req, res) => {
+  let dateParameter = req.params.id
+  if(!req.params.id){
+    dateParameter = ""
+  }
+  const unixRegex = /\d{13}/
+  const utcRegex = /\d{4}-\d{2}-\d{2}/
+  console.log(unixRegex.test(dateParameter))
+  if(!(unixRegex.test(dateParameter)) && !(utcRegex.test(dateParameter))){
+    res.status(400).json({error: "Invalid Date"})
+  } else if(utcRegex.test(dateParameter)){
+    const date = new Date(dateParameter)
+    const utcdate = date.toUTCString()
+    const unixdate = date.getTime()
+    res.status(200).json({unix: unixdate, utc: utcdate})
+  } else if (unixRegex.test(dateParameter)) {
+    const dateObject = new Date(Number(dateParameter))
+    res.status(200).json({unix: dateParameter, utc: dateObject.toUTCString()})
+  }
+  
 });
+
+app.get("/api", (req, res) => {
+  const date = new Date()
+  const utcdate = date.toUTCString()
+  const unixdate = date.getTime()
+  res.status(200).json({unix: unixdate, utc: utcdate})
+})
 
 
 
